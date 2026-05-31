@@ -1,5 +1,7 @@
 package com.examplesaludconecta.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,8 +24,15 @@ public class Tratamiento {
     @Column(columnDefinition = "INTEGER")
     private Long id;
 
+    @NotBlank(message = "El diagnóstico es obligatorio")
     private String diagnostico;
+
+    @NotBlank(message = "El medicamento es obligatorio")
     private String medicamento;
+
+    @NotBlank(message = "La dosis es obligatoria")
     private String dosis;
+
+    @Min(value = 1, message = "La duración del tratamiento debe ser mayor a 0")
     private int duracionDias;
 }

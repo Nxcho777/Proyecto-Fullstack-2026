@@ -1,5 +1,8 @@
 package com.examplesaludconecta.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,9 +25,19 @@ public class Paciente {
     @Column(columnDefinition = "INTEGER")
     private Long id;
 
-    private String nombre;
-    private String apellido;
-    private String rut;
-    private String email;
-    private String telefono;
+    @NotBlank(message = "El nombre debe ser obligatorio")
+private String nombre;
+
+    @NotBlank(message = "El apellido debe ser obligatorio")
+private String apellido;
+
+    @NotBlank(message = "El rut debe ser obligatorio")
+private String rut;
+
+    @Email(message = "El correo debe tener un formato válido para ingresarlo")
+private String correo;
+
+    @Pattern(regexp = "^[0-9+\\s-]{8,15}$", message = "El numero de teléfono no es válido")
+private String telefono;
+
 }

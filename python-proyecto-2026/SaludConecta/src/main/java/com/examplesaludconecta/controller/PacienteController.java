@@ -1,8 +1,9 @@
 package com.examplesaludconecta.controller;
 
 import java.util.List;
-import java.util.Optional;
-
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,33 +24,33 @@ public class PacienteController {
     @Autowired
     private PacienteService pacienteService;
 
-    // Obtener todos: GET http://localhost:8080/api/pacientes
     @GetMapping
     public List<Paciente> listarPacientes() {
         return pacienteService.obtenerTodosLosPacientes();
     }
 
-    // Buscar por ID: GET http://localhost:8080/api/pacientes/{id}
     @GetMapping("/{id}")
-    public Optional<Paciente> buscarPorId(@PathVariable Long id) {
-        return pacienteService.obtenerPorId(id);
-    }
+    public ResponseEntity<Paciente> obtenerPacientePorId(@PathVariable Long id) {
+        return pacienteService.obtenerPorId(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
 
-    // Guardar nuevo: POST http://localhost:8080/api/pacientes
     @PostMapping
-    public Paciente guardarPaciente(@RequestBody Paciente paciente) {
-        return pacienteService.guardarPaciente(paciente);
-    }
+    public ResponseEntity<Paciente> crearPaciente(@Valid @RequestBody Paciente paciente) {
+    Paciente nuevoPaciente = pacienteService.guardarPaciente(paciente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPaciente);
+}
 
-    // Actualizar: PUT http://localhost:8080/api/pacientes/{id}
     @PutMapping("/{id}")
-    public Paciente actualizar(@PathVariable Long id, @RequestBody Paciente paciente) {
-        return pacienteService.actualizarPaciente(id, paciente);
+    public ResponseEntity<Paciente> actualizar(@PathVariable Long id, @Valid @RequestBody Paciente paciente) {
+        Paciente actualizado = pacienteService.actualizarPaciente(id, paciente);
+        return ResponseEntity.ok(actualizado);
     }
 
-    // Eliminar: DELETE http://localhost:8080/api/pacientes/{id}
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        pacienteService.eliminarPaciente(id);
-    }
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    pacienteService.eliminarPaciente(id);
+        return ResponseEntity.noContent().build();
+}
 }

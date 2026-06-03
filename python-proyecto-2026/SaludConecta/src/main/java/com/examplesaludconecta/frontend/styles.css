@@ -1,0 +1,202 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #dff6ff, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+}
+
+.login-card {
+  background: white;
+  border-radius: 18px;
+  padding: 35px;
+  box-shadow: 0 10px 30px rgba(0, 80, 120, 0.15);
+}
+
+h1 {
+  text-align: center;
+  color: #0b6b8f;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #5f7f8f;
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  color: #244b5a;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid #cce3ea;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  background: #0b8fb3;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #087997;
+}
+
+.mensaje {
+  margin-top: 18px;
+  text-align: center;
+  font-weight: bold;
+}
+.dashboard {
+  display: none;
+  width: 100%;
+  min-height: 100vh;
+  background: #f4fbfd;
+}
+
+.dashboard-header {
+  background: white;
+  padding: 20px 40px;
+  box-shadow: 0 4px 14px rgba(0, 80, 120, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #0b6b8f;
+}
+
+#usuarioActivo {
+  color: #5f7f8f;
+  margin-top: 5px;
+}
+
+.logout-btn {
+  width: auto;
+  padding: 10px 18px;
+  background: #d9534f;
+}
+
+.logout-btn:hover {
+  background: #c9302c;
+}
+
+.dashboard-content {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 80, 120, 0.12);
+}
+
+.dashboard-content h2 {
+  color: #244b5a;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.dashboard-actions button {
+  width: auto;
+}
+.pacientes-section {
+  display: none;
+  margin-top: 30px;
+}
+
+#tablaPacientes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+#tablaPacientes th,
+#tablaPacientes td {
+  border: 1px solid #d6eaf0;
+  padding: 10px;
+  text-align: left;
+}
+
+#tablaPacientes th {
+  background: #e8f7fb;
+  color: #244b5a;
+}
+
+#tablaPacientes tr:nth-child(even) {
+  background: #f7fcfd;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th {
+    background-color: #0b8fb3;
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+.form-section {
+  display: none;
+  margin-top: 30px;
+  background: #f8fcfd;
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid #d6eaf0;
+}
+
+.form-section h2 {
+  color: #244b5a;
+}
+
+.form-section form {
+  display: grid;
+  gap: 12px;
+}
+
+.form-section input {
+  background: white;
+}

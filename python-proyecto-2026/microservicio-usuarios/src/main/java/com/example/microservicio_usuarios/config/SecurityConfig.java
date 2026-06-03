@@ -15,6 +15,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
@@ -27,6 +28,21 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .build();
+        }
+
+        @Bean
+        public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration =
+            new org.springframework.web.cors.CorsConfiguration();
+
+                configuration.addAllowedOriginPattern("*");
+                configuration.addAllowedMethod("*");
+                configuration.addAllowedHeader("*");
+                configuration.setAllowCredentials(false);
+                org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+                        new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+                return source;
         }
         
     @Bean

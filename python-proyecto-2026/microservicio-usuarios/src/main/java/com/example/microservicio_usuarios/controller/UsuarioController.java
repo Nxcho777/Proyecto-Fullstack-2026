@@ -12,11 +12,11 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @GetMapping("/existe/{username}")
-    public ResponseEntity<Boolean> existeUsuario(@PathVariable String username) {
+    @GetMapping("/existe/{email}")
+    public ResponseEntity<Boolean> existeUsuario(@PathVariable String email) {
 
     boolean existe = usuarioRepository
-            .findByUsername(username)
+            .findByEmail(email)
             .isPresent();
 
     return ResponseEntity.ok(existe);

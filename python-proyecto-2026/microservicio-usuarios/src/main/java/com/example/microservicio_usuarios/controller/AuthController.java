@@ -21,14 +21,14 @@ public class AuthController {
     private JwtService jwtService;
 
     @PostMapping("/login")public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-    String username = loginRequest.getUsername();
+    String email = loginRequest.getEmail();
     String password = loginRequest.getPassword();
-    Usuario usuario = usuarioRepository.findByUsername(username)
+    Usuario usuario = usuarioRepository.findByEmail(email)
         .orElse(null);
 
     if (usuario == null) {
         return ResponseEntity.status(401)
-                .body(Map.of("Error", "El usuario ingresado no existe"));
+                .body(Map.of("Error", "El email ingresado no está registrado o no existe"));
     }
 
     if (!usuario.getPassword().equals(password)) {
@@ -36,7 +36,7 @@ public class AuthController {
                 .body(Map.of("Error", "La contraseña ingresada es incorrecta"));
     }
 
-    String token = jwtService.generarToken(username);
+    String token = jwtService.generarToken(email);
         return ResponseEntity.ok(
             Map.of(
                     "mensaje", "El usuario ha iniciado sesión exitosamente",

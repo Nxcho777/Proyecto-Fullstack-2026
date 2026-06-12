@@ -1,11 +1,10 @@
 package com.examplesaludconecta.service;
 
+import com.examplesaludconecta.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.examplesaludconecta.model.Medico;
 import com.examplesaludconecta.repository.MedicoRepository;
 
@@ -28,9 +27,13 @@ public class MedicoService {
         return medicoRepository.findById(id);
     }
 
-    public void eliminarMedico(Long id) {
-        medicoRepository.deleteById(id);
+   public void eliminarMedico(Long id) {
+    if (!medicoRepository.existsById(id)) {
+        throw new ResourceNotFoundException("Médico no encontrado con id: " + id);
     }
+
+    medicoRepository.deleteById(id);
+}
 
     public Medico actualizarMedico(Long id, Medico actualizado) {
         return medicoRepository.findById(id).map(medico -> {
@@ -38,7 +41,9 @@ public class MedicoService {
             medico.setApellido(actualizado.getApellido());
             medico.setRut(actualizado.getRut());
             medico.setEspecialidad(actualizado.getEspecialidad());
+            medico.setEmail(actualizado.getEmail());
             return medicoRepository.save(medico);
-        }).orElseThrow(() -> new RuntimeException("El id no pertenece a un Medico: " + id));
+        }).orElseThrow(() -> 
+            new ResourceNotFoundException("Médico no encontrado con id: " + id));
     }
 }

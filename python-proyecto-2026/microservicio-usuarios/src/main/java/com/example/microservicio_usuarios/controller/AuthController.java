@@ -1,5 +1,8 @@
 package com.example.microservicio_usuarios.controller;
 
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import com.example.microservicio_usuarios.dto.LoginRequest;
 import jakarta.validation.Valid;
 import com.example.microservicio_usuarios.model.Usuario;
@@ -12,6 +15,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(
+    name = "Hola mundo",
+    description = "Operaciones relacionadas con el inicio de sesión y generación de token JWT"
+)
 public class AuthController {
 
     @Autowired
@@ -20,9 +27,14 @@ public class AuthController {
     @Autowired
     private JwtService jwtService;
 
-    @PostMapping("/login")public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-    String email = loginRequest.getEmail();
-    String password = loginRequest.getPassword();
+    @Operation(
+        summary = "Iniciar sesión",
+        description = "Valida las credenciales del usuario mediante email y contraseña. Si son correctas, genera y retorna un token JWT."
+    )
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        String email = request.getEmail();
+        String password = request.getPassword();
     Usuario usuario = usuarioRepository.findByEmail(email)
         .orElse(null);
 

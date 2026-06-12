@@ -1,8 +1,10 @@
 package com.examplesaludconecta.controller;
 
 import java.util.List;
-import java.util.Optional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.examplesaludconecta.model.Medico;
 import com.examplesaludconecta.service.MedicoService;
@@ -15,27 +17,36 @@ public class MedicoController {
     private MedicoService medicoService;
 
     @GetMapping
-    public List<Medico> listarMedicos() {
-        return medicoService.obtenerTodosLosMedicos();
+    public ResponseEntity<List<Medico>> listarMedicos() {
+        List<Medico> medicos = medicoService.obtenerTodosLosMedicos();
+        return ResponseEntity.ok(medicos);
     }
 
     @GetMapping("/{id}")
-    public Optional<Medico> buscarPorId(@PathVariable Long id) {
-        return medicoService.obtenerPorId(id);
+    public ResponseEntity<Medico> buscarPorId(@PathVariable Long id) {
+        return medicoService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Medico guardarMedico(@RequestBody Medico medico) {
-        return medicoService.guardarMedico(medico);
+    public ResponseEntity<Medico> guardarMedico(@Valid @RequestBody Medico medico) {
+        Medico nuevo = medicoService.guardarMedico(medico);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
     @PutMapping("/{id}")
-    public Medico actualizar(@PathVariable Long id, @RequestBody Medico medico) {
-        return medicoService.actualizarMedico(id, medico);
+    public ResponseEntity<Medico> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody Medico medico) {
+
+        Medico actualizado = medicoService.actualizarMedico(id, medico);
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         medicoService.eliminarMedico(id);
+        return ResponseEntity.noContent().build();
     }
 }

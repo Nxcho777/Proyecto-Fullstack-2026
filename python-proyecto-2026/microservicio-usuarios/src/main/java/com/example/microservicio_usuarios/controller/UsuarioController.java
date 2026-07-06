@@ -10,11 +10,18 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
+
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -34,24 +41,40 @@ public class UsuarioController {
             summary = "Listar usuarios",
             description = "Obtiene todos los usuarios registrados e incluye enlaces HATEOAS."
     )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuarios encontrados de manera correcta"),
+        @ApiResponse(responseCode = "204", description = "No existen usuarios registrados", content = @Content)
+    })
     @GetMapping
-    public CollectionModel<EntityModel<Usuario>> listarUsuarios() {
+    public ResponseEntity<CollectionModel<EntityModel<Usuario>>> listarUsuarios() {
 
-        List<EntityModel<Usuario>> usuarios = usuarioRepository.findAll()
+        List<Usuario> listaUsuarios = usuarioRepository.findAll();
+
+        if (listaUsuarios.isEmpty()){
+                return ResponseEntity.noContent().build();
+        }
+        List<EntityModel<Usuario>> usuarios = listaUsuarios
                 .stream()
                 .map(usuarioAssembler::toModel)
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(
+        CollectionModel<EntityModel<Usuario>> respuesta = CollectionModel.of(
                 usuarios,
                 linkTo(methodOn(UsuarioController.class).listarUsuarios()).withSelfRel()
         );
+        
+        return ResponseEntity.ok(respuesta);
     }
 
     @Operation(
             summary = "Buscar usuario por ID",
             description = "Obtiene un usuario específico mediante su ID e incluye enlaces HATEOAS."
     )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuarios encontrados de manera correcta"),
+        @ApiResponse(responseCode = "404", description = "Usuarios no encontrados", content = @Content)
+    })
+
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Usuario>> obtenerUsuarioPorId(@PathVariable Integer id) {
 
@@ -65,6 +88,10 @@ public class UsuarioController {
             summary = "Verificar si el usuario existe",
             description = "Comprueba si un usuario si se encuentra registrado en el sistema mediante su email."
     )
+     @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Consulta realizada correctamente"),
+        @ApiResponse(responseCode = "404", description = "Usuarios buscado por gmail no se ha encontrado", content = @Content)
+     })     
     @GetMapping("/existe/{email}")
     public ResponseEntity<Boolean> existeUsuario(@PathVariable String email) {
 
@@ -79,6 +106,10 @@ public class UsuarioController {
             summary = "Eliminar usuario",
             description = "Elimina un usuario registrado mediante su ID."
     )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuarios eliminado de manera efectiva"),
+        @ApiResponse(responseCode = "404", description = "Usuarios no encontrados", content = @Content)
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Integer id) {
 

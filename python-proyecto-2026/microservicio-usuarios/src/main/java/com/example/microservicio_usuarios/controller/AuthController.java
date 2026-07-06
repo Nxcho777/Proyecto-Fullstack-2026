@@ -3,6 +3,10 @@ package com.example.microservicio_usuarios.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import com.example.microservicio_usuarios.dto.LoginRequest;
 import jakarta.validation.Valid;
 import com.example.microservicio_usuarios.model.Usuario;
@@ -31,6 +35,11 @@ public class AuthController {
         summary = "Iniciar sesión",
         description = "Valida las credenciales del usuario mediante email y contraseña. Si son correctas, genera y retorna un token JWT."
     )
+    @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "El inicio de sesionfure exitoso, retorna token JWT"),
+    @ApiResponse(responseCode = "400", description = "Datos invalidos en el envio de la solicitud", content = @Content),
+    @ApiResponse(responseCode = "401", description = "Las credenciales son incorrectas o el usuario no esta registrado", content = @Content)
+    }) 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         String email = request.getEmail();

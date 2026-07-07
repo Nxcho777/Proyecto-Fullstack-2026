@@ -2,7 +2,7 @@ package com.example.microservicio_usuarios.controller;
 
 import com.example.microservicio_usuarios.assemblers.UsuarioAssembler;
 import com.example.microservicio_usuarios.model.Usuario;
-import com.example.microservicio_usuarios.repository.UsuarioRepository;
+import com.example.microservicio_usuarios.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +31,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 )
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+@Autowired
+private UsuarioService usuarioService;
 
     @Autowired
     private UsuarioAssembler usuarioAssembler;
@@ -48,7 +48,7 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<Usuario>>> listarUsuarios() {
 
-        List<Usuario> listaUsuarios = usuarioRepository.findAll();
+        List<Usuario> listaUsuarios = usuarioService.listarUsuarios();
 
         if (listaUsuarios.isEmpty()){
                 return ResponseEntity.noContent().build();
@@ -71,14 +71,13 @@ public class UsuarioController {
             description = "Obtiene un usuario específico mediante su ID e incluye enlaces HATEOAS."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuarios encontrados de manera correcta"),
+        @ApiResponse(responseCode = "200", description = "Usuarios encontrados correctamente"),
         @ApiResponse(responseCode = "404", description = "Usuarios no encontrados", content = @Content)
     })
-
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Usuario>> obtenerUsuarioPorId(@PathVariable Integer id) {
 
-        return usuarioRepository.findById(id)
+        return usuarioService.obtenerUsuarioPorId(id)
                 .map(usuarioAssembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -93,14 +92,10 @@ public class UsuarioController {
         @ApiResponse(responseCode = "404", description = "Usuarios buscado por gmail no se ha encontrado", content = @Content)
      })     
     @GetMapping("/existe/{email}")
-    public ResponseEntity<Boolean> existeUsuario(@PathVariable String email) {
-
-        boolean existe = usuarioRepository
-                .findByEmail(email)
-                .isPresent();
-
-        return ResponseEntity.ok(existe);
-    }
+        public ResponseEntity<Boolean> existeUsuario(@PathVariable String email) {
+                boolean existe = usuarioService.existeUsuarioPorEmail(email);
+                return ResponseEntity.ok(existe);
+        }
 
     @Operation(
             summary = "Eliminar usuario",
@@ -112,12 +107,11 @@ public class UsuarioController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Integer id) {
+        boolean eliminado = usuarioService.eliminarUsuario(id);
 
-        if (!usuarioRepository.existsById(id)) {
+        if (!eliminado) {
             return ResponseEntity.notFound().build();
-        }
-
-        usuarioRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
+    return ResponseEntity.noContent().build();
+} 
 }

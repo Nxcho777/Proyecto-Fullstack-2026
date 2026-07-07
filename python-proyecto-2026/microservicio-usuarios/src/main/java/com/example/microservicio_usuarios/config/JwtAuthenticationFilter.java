@@ -1,7 +1,7 @@
 package com.example.microservicio_usuarios.config;
 
 import com.example.microservicio_usuarios.model.Usuario;
-import com.example.microservicio_usuarios.repository.UsuarioRepository;
+import com.example.microservicio_usuarios.service.UsuarioService;
 import com.example.microservicio_usuarios.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,11 +20,11 @@ import java.util.ArrayList;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UsuarioRepository usuarioRepository) {
+    public JwtAuthenticationFilter(JwtService jwtService, UsuarioService usuarioService) {
         this.jwtService = jwtService;
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String correo = jwtService.extraerUsername(token);
 
         if (correo != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Usuario usuario = usuarioRepository.findByEmail(correo).orElse(null);
+            Usuario usuario = usuarioService.buscarPorEmail(correo).orElse(null);
             if (usuario != null && jwtService.validarToken(token, usuario.getEmail())) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(

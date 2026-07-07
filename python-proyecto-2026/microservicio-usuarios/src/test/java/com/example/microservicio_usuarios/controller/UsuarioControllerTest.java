@@ -3,7 +3,7 @@ package com.example.microservicio_usuarios.controller;
 import com.example.microservicio_usuarios.service.JwtService;
 import com.example.microservicio_usuarios.assemblers.UsuarioAssembler;
 import com.example.microservicio_usuarios.model.Usuario;
-import com.example.microservicio_usuarios.repository.UsuarioRepository;
+import com.example.microservicio_usuarios.service.UsuarioService;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class UsuarioControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
     @MockitoBean
     private UsuarioAssembler usuarioAssembler;
@@ -60,7 +60,7 @@ class UsuarioControllerTest {
                         .obtenerUsuarioPorId(usuario.getId())).withSelfRel()
         );
 
-        when(usuarioRepository.findAll()).thenReturn(List.of(usuario));
+        when(usuarioService.listarUsuarios()).thenReturn(List.of(usuario));
         when(usuarioAssembler.toModel(usuario)).thenReturn(usuarioModel);
 
         mockMvc.perform(get("/api/usuarios"))
@@ -69,7 +69,7 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/usuarios")))
                 .andExpect(jsonPath("$._embedded").exists());
 
-        verify(usuarioRepository, times(1)).findAll();
+        verify(usuarioService, times(1)).listarUsuarios();
         verify(usuarioAssembler, times(1)).toModel(usuario);
     }
 
@@ -85,7 +85,7 @@ class UsuarioControllerTest {
                         .obtenerUsuarioPorId(id)).withSelfRel()
         );
 
-        when(usuarioRepository.findById(id)).thenReturn(Optional.of(usuario));
+        when(usuarioService.obtenerUsuarioPorId(id)).thenReturn(Optional.of(usuario));
         when(usuarioAssembler.toModel(usuario)).thenReturn(usuarioModel);
 
         mockMvc.perform(get("/api/usuarios/{id}", id))
@@ -95,7 +95,7 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$._links.self.href").exists())
                 .andExpect(jsonPath("$._links.self.href", containsString("/api/usuarios/" + id)));
 
-        verify(usuarioRepository, times(1)).findById(id);
+        verify(usuarioService, times(1)).obtenerUsuarioPorId(id);
         verify(usuarioAssembler, times(1)).toModel(usuario);
     }
 
@@ -104,57 +104,54 @@ class UsuarioControllerTest {
     void shouldReturnNotFoundWhenUsuarioNoExiste() throws Exception {
         Integer id = 99;
 
-        when(usuarioRepository.findById(id)).thenReturn(Optional.empty());
+        when(usuarioService.obtenerUsuarioPorId(id)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/usuarios/{id}", id))
                 .andExpect(status().isNotFound());
 
-        verify(usuarioRepository, times(1)).findById(id);
+        verify(usuarioService, times(1)).obtenerUsuarioPorId(id);
         verify(usuarioAssembler, never()).toModel(any(Usuario.class));
     }
 
-    @Test
-    @DisplayName("Debe retornar true si el usuario existe por email")
-    void shouldExisteUsuarioPorEmail() throws Exception {
-        Usuario usuario = crearUsuario(1);
+@Test
+@DisplayName("Debe retornar true si el usuario existe por email")
+void shouldExisteUsuarioPorEmail() throws Exception {
+    Usuario usuario = crearUsuario(1);
 
-        when(usuarioRepository.findByEmail(usuario.getEmail()))
-                .thenReturn(Optional.of(usuario));
+    when(usuarioService.existeUsuarioPorEmail(usuario.getEmail()))
+            .thenReturn(true);
 
-        mockMvc.perform(get("/api/usuarios/existe/{email}", usuario.getEmail()))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+    mockMvc.perform(get("/api/usuarios/existe/{email}", usuario.getEmail()))
+            .andExpect(status().isOk())
+            .andExpect(content().string("true"));
 
-        verify(usuarioRepository, times(1)).findByEmail(usuario.getEmail());
-    }
-
+    verify(usuarioService, times(1)).existeUsuarioPorEmail(usuario.getEmail());
+}
     @Test
     @DisplayName("Debe eliminar un usuario existente")
     void shouldEliminarUsuarioExistente() throws Exception {
         Integer id = 1;
 
-        when(usuarioRepository.existsById(id)).thenReturn(true);
+    when(usuarioService.eliminarUsuario(id)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/usuarios/{id}", id))
-                .andExpect(status().isNoContent());
+    mockMvc.perform(delete("/api/usuarios/{id}", id))
+            .andExpect(status().isNoContent());
 
-        verify(usuarioRepository, times(1)).existsById(id);
-        verify(usuarioRepository, times(1)).deleteById(id);
-    }
+    verify(usuarioService, times(1)).eliminarUsuario(id);
+}
 
-    @Test
-    @DisplayName("Debe retornar 404 al eliminar un usuario inexistente")
-    void shouldReturnNotFoundWhenEliminarUsuarioNoExiste() throws Exception {
+   @Test
+   @DisplayName("Debe retornar 404 al eliminar un usuario inexistente")
+   void shouldReturnNotFoundWhenEliminarUsuarioNoExiste() throws Exception {
         Integer id = 99;
 
-        when(usuarioRepository.existsById(id)).thenReturn(false);
+    when(usuarioService.eliminarUsuario(id)).thenReturn(false);
 
-        mockMvc.perform(delete("/api/usuarios/{id}", id))
-                .andExpect(status().isNotFound());
+    mockMvc.perform(delete("/api/usuarios/{id}", id))
+            .andExpect(status().isNotFound());
 
-        verify(usuarioRepository, times(1)).existsById(id);
-        verify(usuarioRepository, never()).deleteById(id);
-    }
+    verify(usuarioService, times(1)).eliminarUsuario(id);
+}
 
     private Usuario crearUsuario(Integer id) {
         Usuario usuario = new Usuario();

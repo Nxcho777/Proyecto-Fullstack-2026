@@ -127,3 +127,7 @@ En Windows PowerShell:
   "fechaPago": "2026-07-10"
 }
 ```
+
+## API Gateway
+
+El proyecto incorpora un API Gateway en el puerto 8090 para centralizar el acceso a los microservicios. Además, se validó la comunicación entre SaludConecta y el microservicio de usuarios mediante WebClient.

@@ -5,6 +5,12 @@ import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -25,12 +31,17 @@ import com.examplesaludconecta.service.PacienteService;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
+@Tag(name = "Controlador de Pacientes", description = "Operaciones relacionadas con gestión de pacientes")
 @RequestMapping("/api/pacientes")
 public class PacienteController {
 
     @Autowired
     private PacienteService pacienteService;
 
+    @Operation(summary = "Listar pacientes", description = "Obtiene todos los registros de pacientes con enlaces HATEOAS.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Registros encontrados correctamente")
+    })
     @GetMapping
     public CollectionModel<EntityModel<Paciente>> listarPacientes() {
         List<EntityModel<Paciente>> pacientes = pacienteService.obtenerTodosLosPacientes()
@@ -44,6 +55,11 @@ public class PacienteController {
         );
     }
 
+    @Operation(summary = "Buscar por ID", description = "Obtiene un registro de pacientes mediante su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Registro encontrado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Registro no encontrado", content = @Content)
+    })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Paciente>> obtenerPacientePorId(@PathVariable Long id) {
         return pacienteService.obtenerPorId(id)
@@ -51,6 +67,11 @@ public class PacienteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Crear registro", description = "Crea un nuevo registro de pacientes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Registro creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content)
+    })
     @PostMapping
     public ResponseEntity<EntityModel<Paciente>> crearPaciente(@Valid @RequestBody Paciente paciente) {
         Paciente nuevoPaciente = pacienteService.guardarPaciente(paciente);
@@ -60,6 +81,11 @@ public class PacienteController {
                 .body(agregarLinksPaciente(nuevoPaciente));
     }
 
+    @Operation(summary = "Actualizar registro", description = "Actualiza un registro de pacientes mediante su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Registro actualizado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Registro no encontrado", content = @Content)
+    })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Paciente>> actualizar(
             @PathVariable Long id,
@@ -70,6 +96,11 @@ public class PacienteController {
         return ResponseEntity.ok(agregarLinksPaciente(actualizado));
     }
 
+    @Operation(summary = "Eliminar registro", description = "Elimina un registro de pacientes mediante su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Registro eliminado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Registro no encontrado", content = @Content)
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         pacienteService.eliminarPaciente(id);

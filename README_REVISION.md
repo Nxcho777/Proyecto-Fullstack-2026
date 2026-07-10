@@ -56,3 +56,8 @@ Probar integración desde SaludConecta:
 http://localhost:8080/api/test-conexion/verificar/admin
 http://localhost:8080/api/test-conexion/verificar/no_existe
 ```
+
+
+## Colaboración técnica
+
+Se agregó documentación de apoyo para la defensa técnica, incluyendo la validación del API Gateway y la comunicación entre microservicios mediante WebClient.

@@ -1,10 +1,10 @@
 package com.example.microservicio_usuarios.controller;
 
+import com.example.microservicio_usuarios.config.JwtAuthenticationFilter;
+import com.example.microservicio_usuarios.exception.CredencialesInvalidasException;
 import com.example.microservicio_usuarios.model.Usuario;
 import com.example.microservicio_usuarios.service.JwtService;
 import com.example.microservicio_usuarios.service.UsuarioService;
-import com.example.microservicio_usuarios.config.JwtAuthenticationFilter;
-import com.example.microservicio_usuarios.repository.UsuarioRepository;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,8 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -37,9 +35,6 @@ class AuthControllerTest {
     private UsuarioService usuarioService;
 
     @MockitoBean
-    private UsuarioRepository usuarioRepository;
-
-    @MockitoBean
     private JwtService jwtService;
 
     @MockitoBean
@@ -58,9 +53,8 @@ class AuthControllerTest {
         Usuario usuario = crearUsuario();
         String token = "token-jwt-de-prueba";
 
-        when(usuarioService.buscarPorEmail(usuario.getEmail()))
-                .thenReturn(Optional.of(usuario));
-
+        when(usuarioService.autenticarUsuario(usuario.getEmail(), "123456"))
+                .thenReturn(usuario);
         when(jwtService.generarToken(usuario.getEmail()))
                 .thenReturn(token);
 
@@ -78,7 +72,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.mensaje").value("El usuario ha iniciado sesión exitosamente"))
                 .andExpect(jsonPath("$.token").value(token));
 
-        verify(usuarioService).buscarPorEmail(usuario.getEmail());
+        verify(usuarioService).autenticarUsuario(usuario.getEmail(), "123456");
         verify(jwtService).generarToken(usuario.getEmail());
     }
 
@@ -87,8 +81,10 @@ class AuthControllerTest {
     void shouldReturnUnauthorizedWhenEmailNoExiste() throws Exception {
         String email = faker.internet().emailAddress();
 
-        when(usuarioService.buscarPorEmail(email))
-                .thenReturn(Optional.empty());
+        when(usuarioService.autenticarUsuario(email, "123456"))
+                .thenThrow(new CredencialesInvalidasException(
+                        "El email ingresado no está registrado o no existe"
+                ));
 
         String jsonLogin = """
                 {
@@ -101,9 +97,10 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonLogin))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.Error").value("El email ingresado no está registrado o no existe"));
+                .andExpect(jsonPath("$.estado").value(401))
+                .andExpect(jsonPath("$.error").value("Credenciales inválidas"))
+                .andExpect(jsonPath("$.mensaje").value("El email ingresado no está registrado o no existe"));
 
-        verify(usuarioService).buscarPorEmail(email);
         verify(jwtService, never()).generarToken(anyString());
     }
 
@@ -112,8 +109,10 @@ class AuthControllerTest {
     void shouldReturnUnauthorizedWhenPasswordIncorrecta() throws Exception {
         Usuario usuario = crearUsuario();
 
-        when(usuarioService.buscarPorEmail(usuario.getEmail()))
-                .thenReturn(Optional.of(usuario));
+        when(usuarioService.autenticarUsuario(usuario.getEmail(), "claveIncorrecta"))
+                .thenThrow(new CredencialesInvalidasException(
+                        "La contraseña ingresada es incorrecta"
+                ));
 
         String jsonLogin = """
                 {
@@ -126,21 +125,37 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonLogin))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.Error").value("La contraseña ingresada es incorrecta"));
+                .andExpect(jsonPath("$.mensaje").value("La contraseña ingresada es incorrecta"));
 
-        verify(usuarioService).buscarPorEmail(usuario.getEmail());
         verify(jwtService, never()).generarToken(anyString());
+    }
+
+    @Test
+    @DisplayName("Debe retornar 400 si los datos del login son inválidos")
+    void shouldReturnBadRequestWhenLoginInvalido() throws Exception {
+        String jsonLogin = """
+                {
+                    "email": "correo-invalido",
+                    "password": "123"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonLogin))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.estado").value(400))
+                .andExpect(jsonPath("$.detalles.email").exists())
+                .andExpect(jsonPath("$.detalles.password").exists());
     }
 
     private Usuario crearUsuario() {
         Usuario usuario = new Usuario();
-
         usuario.setId(1);
         usuario.setUsername(faker.internet().username());
         usuario.setEmail(faker.internet().emailAddress());
         usuario.setPassword("123456");
         usuario.setRol("USER");
-
         return usuario;
     }
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.examplesaludconecta.exception.ResourceNotFoundException;
 import com.examplesaludconecta.model.Paciente;
 import com.examplesaludconecta.service.PacienteService;
 
@@ -62,15 +63,17 @@ public class PacienteController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Paciente>> obtenerPacientePorId(@PathVariable Long id) {
-        return pacienteService.obtenerPorId(id)
-                .map(paciente -> ResponseEntity.ok(agregarLinksPaciente(paciente)))
-                .orElse(ResponseEntity.notFound().build());
+        Paciente paciente = pacienteService.obtenerPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado con id: " + id));
+
+        return ResponseEntity.ok(agregarLinksPaciente(paciente));
     }
 
     @Operation(summary = "Crear registro", description = "Crea un nuevo registro de pacientes.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Registro creado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
+            @ApiResponse(responseCode = "409", description = "RUT o correo duplicado", content = @Content)
     })
     @PostMapping
     public ResponseEntity<EntityModel<Paciente>> crearPaciente(@Valid @RequestBody Paciente paciente) {
@@ -84,7 +87,9 @@ public class PacienteController {
     @Operation(summary = "Actualizar registro", description = "Actualiza un registro de pacientes mediante su ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Registro actualizado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Registro no encontrado", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Registro no encontrado", content = @Content),
+            @ApiResponse(responseCode = "409", description = "RUT o correo duplicado", content = @Content)
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Paciente>> actualizar(

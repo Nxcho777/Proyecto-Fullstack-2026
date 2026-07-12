@@ -110,7 +110,7 @@ public class DataLoader implements CommandLineRunner {
                 "2 comprimidos al día"
         };
 
-        
+
         String[] diagnosticos = {
         "Gripe",
         "Bronquitis",
@@ -120,7 +120,7 @@ public class DataLoader implements CommandLineRunner {
         "Migraña",
         "Infección respiratoria"
 };
-        
+
       for (int i = 0; i < 15; i++) {
             Tratamiento tratamiento = new Tratamiento();
 

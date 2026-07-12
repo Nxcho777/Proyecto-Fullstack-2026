@@ -1,6 +1,8 @@
 package com.example.microservicio_usuarios.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -55,12 +57,20 @@ public class JwtService {
     }
 
     public boolean tokenExpirado(String token) {
-        return extraerExpiracion(token).before(new Date());
+        try {
+            return extraerExpiracion(token).before(new Date());
+        } catch (ExpiredJwtException ex) {
+            return true;
+        }
     }
 
     public boolean validarToken(String token, String username) {
-        final String usernameExtraido = extraerUsername(token);
-        return usernameExtraido.equals(username) && !tokenExpirado(token);
+        try {
+            final String usernameExtraido = extraerUsername(token);
+            return usernameExtraido.equals(username) && !tokenExpirado(token);
+        } catch (JwtException | IllegalArgumentException ex) {
+            return false;
+        }
     }
 
     private Key getKey() {

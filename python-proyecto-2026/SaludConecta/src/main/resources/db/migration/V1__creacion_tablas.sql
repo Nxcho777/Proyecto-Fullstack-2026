@@ -22,4 +22,4 @@ CREATE TABLE tratamientos (
     medicamento VARCHAR(255),
     dosis VARCHAR(255),
     duracion_dias INTEGER
-);  
+);

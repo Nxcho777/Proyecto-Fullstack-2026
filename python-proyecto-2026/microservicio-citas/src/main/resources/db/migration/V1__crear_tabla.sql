@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS citas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    paciente_id INTEGER NOT NULL,
-    medico_id INTEGER NOT NULL,
-    fecha TEXT NOT NULL,
-    hora TEXT NOT NULL,
-    motivo TEXT NOT NULL,
-    estado TEXT NOT NULL
-);

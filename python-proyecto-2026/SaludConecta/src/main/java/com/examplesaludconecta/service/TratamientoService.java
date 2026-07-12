@@ -1,23 +1,24 @@
 package com.examplesaludconecta.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.examplesaludconecta.exception.ResourceNotFoundException;
 import com.examplesaludconecta.model.Tratamiento;
 import com.examplesaludconecta.repository.TratamientoRepository;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
+@Validated
 @SuppressWarnings("null")
 public class TratamientoService {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(TratamientoService.class);
+    private static final Logger log = LoggerFactory.getLogger(TratamientoService.class);
 
     @Autowired
     private TratamientoRepository tratamientoRepository;
@@ -27,8 +28,8 @@ public class TratamientoService {
         return tratamientoRepository.findAll();
     }
 
-    public Tratamiento guardarTratamiento(Tratamiento tratamiento) {
-        log.info("Guardando tratamiento con un diagnostico asignado {}", tratamiento.getDiagnostico());
+    public Tratamiento guardarTratamiento(@Valid Tratamiento tratamiento) {
+        log.info("Guardando tratamiento con un diagnóstico asignado {}", tratamiento.getDiagnostico());
         return tratamientoRepository.save(tratamiento);
     }
 
@@ -43,11 +44,11 @@ public class TratamientoService {
             throw new ResourceNotFoundException("Tratamiento no encontrado con id: " + id);
         }
 
-        log.info("Eliminacion del tratamiento con id {}", id);
+        log.info("Eliminación del tratamiento con id {}", id);
         tratamientoRepository.deleteById(id);
     }
 
-    public Tratamiento actualizarTratamiento(Long id, Tratamiento actualizado) {
+    public Tratamiento actualizarTratamiento(Long id, @Valid Tratamiento actualizado) {
         log.info("Actualizando tratamiento con id {}", id);
 
         return tratamientoRepository.findById(id).map(tratamiento -> {

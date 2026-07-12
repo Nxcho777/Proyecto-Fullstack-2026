@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.examplesaludconecta.exception.ResourceNotFoundException;
 import com.examplesaludconecta.model.Tratamiento;
 import com.examplesaludconecta.service.TratamientoService;
 
@@ -54,9 +55,10 @@ public class TratamientoController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Tratamiento>> buscarPorId(@PathVariable Long id) {
-        return tratamientoService.obtenerPorId(id)
-                .map(tratamiento -> ResponseEntity.ok(agregarLinksTratamiento(tratamiento)))
-                .orElse(ResponseEntity.notFound().build());
+        Tratamiento tratamiento = tratamientoService.obtenerPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tratamiento no encontrado con id: " + id));
+
+        return ResponseEntity.ok(agregarLinksTratamiento(tratamiento));
     }
 
     @Operation(summary = "Crear registro", description = "Crea un nuevo registro de tratamientos.")
@@ -78,6 +80,7 @@ public class TratamientoController {
     @Operation(summary = "Actualizar registro", description = "Actualiza un registro de tratamientos mediante su ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Registro actualizado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
             @ApiResponse(responseCode = "404", description = "Registro no encontrado", content = @Content)
     })
     @PutMapping("/{id}")

@@ -18,7 +18,7 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
-   
+
          @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http
@@ -64,11 +64,11 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
                 return source;
         }
-        
+
     @Bean
     public org.springframework.security.core.userdetails.UserDetailsService userDetailsService() {
     return username -> {
         throw new org.springframework.security.core.userdetails.UsernameNotFoundException("No aplica");
     };
   }
-}       
+}

@@ -1,5 +1,6 @@
 package com.examplesaludconecta;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,11 +13,11 @@ public class SaludConectaApplication {
         SpringApplication.run(SaludConectaApplication.class, args);
     }
 
-    // Este Bean configura el WebClient apuntando fijamente al microservicio de usuarios
+    // Este Bean configura el WebClient apuntando al microservicio de usuarios.
     @Bean
-    public WebClient webClient() {
+    public WebClient webClient(@Value("${microservicio.usuarios.url}") String microservicioUsuariosUrl) {
         return WebClient.builder()
-                .baseUrl("http://localhost:8081/api/usuarios")
+                .baseUrl(microservicioUsuariosUrl)
                 .build();
     }
 }

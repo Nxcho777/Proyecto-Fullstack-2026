@@ -6,6 +6,8 @@ import com.examplesaludconecta.model.Tratamiento;
 import com.examplesaludconecta.repository.MedicoRepository;
 import com.examplesaludconecta.repository.PacienteRepository;
 import com.examplesaludconecta.repository.TratamientoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -16,6 +18,9 @@ import java.util.Random;
 @Component
 @Profile("datafaker")
 public class DataLoader implements CommandLineRunner {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(DataLoader.class);
 
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
@@ -40,7 +45,7 @@ public class DataLoader implements CommandLineRunner {
         cargarPacientes(faker);
         cargarTratamientos(faker, random);
 
-        System.out.println("Datos falsos cargados correctamente con DataFaker.");
+        log.info("Datos falsos cargados correctamente con DataFaker.");
     }
 
     private void cargarMedicos(Faker faker) {
